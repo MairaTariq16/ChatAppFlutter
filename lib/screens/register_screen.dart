@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'home_screen.dart';
 import 'login_screen.dart';
 import '../constants.dart' as Constants;
+import '../services/database.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -14,12 +15,15 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   final formkey = GlobalKey<FormState>();
   final _auth = FirebaseAuth.instance;
+  Database database = Database();
   String email = '';
   String password = '';
+  String username = '';
 
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
   final emailController = TextEditingController();
+  final usernameController = TextEditingController();
   final pwController = TextEditingController();
 
   @override
@@ -58,6 +62,16 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
                 const SizedBox(
+                  height: 25,
+                ),
+                TextFormField(
+                  controller: usernameController,
+                  keyboardType: TextInputType.name,
+                  decoration: const InputDecoration(
+                    labelText: Constants.USERNAME_TEXT,
+                  ),
+                ),
+                const SizedBox(
                   height: 20,
                 ),
                 TextFormField(
@@ -75,9 +89,12 @@ class _SignupScreenState extends State<SignupScreen> {
                   onPressed: () async {
                     try {
                       email = emailController.text;
+                      username = usernameController.text;
                       password = pwController.text;
+
                       await _auth.createUserWithEmailAndPassword(
                           email: email, password: password);
+                      await database.setUserData(email, username);
                       await Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => HomeScreen(),
                       ));
@@ -85,7 +102,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       showDialog(
                         context: context,
                         builder: (ctx) => AlertDialog(
-                          title: Text(Constants.SIGNUP_FAIL),
+                          title: const Text(Constants.SIGNUP_FAIL),
                           content: Text('${e.message}'),
                           actions: [
                             TextButton(

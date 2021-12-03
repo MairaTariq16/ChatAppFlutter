@@ -1,6 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Database {
+  setDeviceToken(String token) {
+    Map<String, String> tokenInfo = {"token": token};
+    FirebaseFirestore.instance.collection("DeviceTokens").add(tokenInfo);
+  }
+
   getUserByEmail(String userEmail) async {
     return FirebaseFirestore.instance
         .collection("users")
